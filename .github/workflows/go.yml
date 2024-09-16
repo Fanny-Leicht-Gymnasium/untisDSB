@@ -55,3 +55,13 @@ jobs:
       with:
         name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
         path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB
+    
+    - name: Create Release
+      if: github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          build/linux/amd64/untisDSB
+          build/windows/amd64/untisDSB
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,57 @@
+name: Go Build for Multiple Platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest] # Multiple OS platforms
+        arch: [ amd64 ] # Architecture
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22.1'
+
+    - name: Build the project
+      run: |
+        # Determine GOOS based on matrix OS
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          GOOS=linux
+        elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+          GOOS=windows
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          GOOS=darwin
+        else
+          echo "Unsupported OS"
+          exit 1
+        fi
+
+        GOARCH=${{ matrix.arch }}
+
+        echo  "Building for $GOOS $GOARCH"
+
+        # Create the build directory if it does not exist
+        mkdir -p build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB
+          
+        # Build the project, ensuring to output a file in the correct directory
+        
+        env GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }} GOARCH=${{ matrix.arch }} go build -o build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB main.go
+    - name: Test
+      run: go test -v ./...
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
+        path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB

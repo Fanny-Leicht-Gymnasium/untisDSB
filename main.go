@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,12 @@ import (
 	"github.com/Fanny-Leicht-Gymnasium/untisDSB/config"
 )
 
+//go:embed static/*
+var staticFiles embed.FS
+
+//go:embed index.html
+var indexHTML string
+
 func main() {
 	err := config.LoadConfig()
 	if err != nil {
@@ -18,13 +25,14 @@ func main() {
 	go config.WatchConfig(config.ConfigPath) // Start watching for changes
 
 	// Serve static files (like CSS, JS, images) from the "static" directory
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/static/", http.FileServer(http.FS(staticFiles)))
 
 	// Serve HTML page
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(indexHTML))
 	})
+
 	// Serve the URLs for Untis
 	http.HandleFunc("/untis/urls", func(w http.ResponseWriter, r *http.Request) {
 		// Create a response structure with URLs

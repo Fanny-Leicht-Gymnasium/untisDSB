@@ -15,6 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	go config.WatchConfig(config.ConfigPath) // Start watching for changes
 
 	// Serve static files (like CSS, JS, images) from the "static" directory
 	fs := http.FileServer(http.Dir("./static"))

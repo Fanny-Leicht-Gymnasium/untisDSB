@@ -4,11 +4,16 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
-	"strings"
+	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/invopop/yaml"
 	"github.com/spf13/viper"
+)
+
+var (
+	debounceDelay = 2 * time.Second // Time to wait before triggering a reload
+	lastModTime   time.Time         // Last modification time of the config file
 )
 
 type ConfigStruct struct {
@@ -66,58 +71,31 @@ func createDefaultConfigFile(configPath string) error {
 	return nil
 }
 
-// Function to check if all environment variables for the config struct are unset
-func areEnvVarsUnset(config interface{}) bool {
-	val := reflect.ValueOf(config)
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Type().Field(i)
-		envTag := field.Tag.Get("env")
-		if envTag == "" {
-			// Fallback to field name if no 'env' tag is provided
-			envTag = strings.ToUpper(field.Name)
-		}
-		if os.Getenv(envTag) != "" {
-			// If any environment variable is set, return false
-			return false
-		}
-	}
-	return true
-}
+var ConfigPath string
+
 func LoadConfig() error {
 	// Default config file path
-	configPath := "./config.yml"
+	ConfigPath = "./config.yml"
 
 	// If a command line argument is provided, use it as the config path
 	if len(os.Args) > 1 {
-		configPath = os.Args[1]
+		ConfigPath = os.Args[1]
 	} else if os.Getenv("CONFIG_FILE") != "" {
-		configPath = os.Getenv("CONFIG_FILE")
+		ConfigPath = os.Getenv("CONFIG_FILE")
 	}
 
 	// Check if all environment variables are unset, and if config file doesn't exist, create default
-	if _, err := os.Stat(configPath); os.IsNotExist(err) && areEnvVarsUnset(Config) {
+	if _, err := os.Stat(ConfigPath); os.IsNotExist(err) {
 		fmt.Println("No environment variables set and no config file found. Creating default config file...")
-		if err := createDefaultConfigFile(configPath); err != nil {
+		if err := createDefaultConfigFile(ConfigPath); err != nil {
 			log.Fatalf("Error creating default config file: %v", err)
 		}
 	}
 
-	viper.SetConfigFile(configPath)
-
-	// Bind environment variables automatically using struct tags
-	val := reflect.ValueOf(Config)
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Type().Field(i)
-		envTag := field.Tag.Get("env")
-		if envTag == "" {
-			// Fallback to field name if no 'env' tag is provided
-			envTag = strings.ToUpper(field.Name)
-		}
-		viper.BindEnv(field.Name, envTag) // Bind field to corresponding env variable
-	}
+	viper.SetConfigFile(ConfigPath)
 
 	// Read the config file if it exists
-	if _, err := os.Stat(configPath); err == nil {
+	if _, err := os.Stat(ConfigPath); err == nil {
 		if err := viper.ReadInConfig(); err != nil {
 			return fmt.Errorf("error reading config file: %w", err)
 		}
@@ -129,4 +107,71 @@ func LoadConfig() error {
 	}
 
 	return nil
+}
+func WatchConfig(configPath string) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatalf("Error creating file watcher: %v", err)
+	}
+	defer watcher.Close()
+
+	err = watcher.Add(configPath)
+	if err != nil {
+		log.Fatalf("Error adding config file to watcher: %v", err)
+	}
+
+	log.Println("Watching for config file changes...")
+
+	// Load initial configuration
+	var lastKnownConfig = Config
+	if err := LoadConfig(); err != nil {
+		log.Fatalf("Initial config load failed: %v", err)
+	}
+
+	// Start a ticker for debouncing
+	ticker := time.NewTicker(debounceDelay)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+
+			// Check if the event is a write event
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				// Check the file modification time
+				fileInfo, err := os.Stat(configPath)
+				if err != nil {
+					log.Printf("Error getting file info: %v", err)
+					continue
+				}
+
+				if fileInfo.ModTime().After(lastModTime) {
+					// Update last modification time
+					lastModTime = fileInfo.ModTime()
+
+					// Wait for the debounce period before reloading
+					<-ticker.C
+
+					log.Println("Config file changed, reloading...")
+					tempConfig := lastKnownConfig
+					if err := LoadConfig(); err != nil {
+						log.Printf("Error reloading config: %v\n", err)
+						Config = tempConfig // Revert to the last known good config
+						log.Println("Reverted to last known good config.")
+					} else {
+						lastKnownConfig = Config // Update last known good config
+						log.Println("Config reloaded successfully.")
+					}
+				}
+			}
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			log.Printf("Watcher error: %v\n", err)
+		}
+	}
 }

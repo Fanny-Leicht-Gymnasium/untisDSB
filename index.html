@@ -47,10 +47,43 @@
             object-fit: contain;
             position: relative;
         }
+
+
+        .scrolling-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .scrolling-text span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-text 15s linear infinite;
+            white-space: nowarp;
+        }
+
+        @keyframes scroll-text {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="scrolling-text">
+        <span id="scrolling-text-content">Your scrolling text goes here. This is a sample text that will scroll continuously.</span>
+    </div>
     <div class="iframe-container">
         <iframe id="iframe1" class="timetable"></iframe>
         <iframe id="iframe2" class="timetable"></iframe>

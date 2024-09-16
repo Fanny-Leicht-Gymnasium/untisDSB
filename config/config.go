@@ -46,7 +46,7 @@ var Config ConfigStruct = ConfigStruct{
 	}{
 		Path:          "",
 		SwitchingTime: 10,
-		RefetchTime:   10,
+		RefetchTime:   60,
 	},
 	WebServer: struct {
 		ServerAddress string

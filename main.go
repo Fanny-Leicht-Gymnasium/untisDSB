@@ -86,6 +86,11 @@ func main() {
 
 	// Serve files from the advertisement directory
 	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
+	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
+		// Example scrolling text; replace with your own logic
+		data := map[string]string{"text": "Your scrolling text goes here. Your scrolling text goes here.Your scrolling text goes here.Your scrolling text goes here.Your scrolling text goes here."}
+		json.NewEncoder(w).Encode(data)
+	})
 
 	// Start the server
 	log.Printf("Server starting on %s...", config.Config.WebServer.ServerAddress)
@@ -93,4 +98,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
+
 }

@@ -22,9 +22,10 @@ type ConfigStruct struct {
 		TomorrowURL string
 	}
 	Advertisement struct {
-		Path          string
-		SwitchingTime uint
-		RefetchTime   uint
+		Path                     string
+		SwitchingTime            uint
+		RefetchTime              uint
+		ReloadIframeOnSizeChange bool
 	}
 	WebServer struct {
 		ServerAddress string
@@ -40,13 +41,15 @@ var Config ConfigStruct = ConfigStruct{
 		TomorrowURL: "https://example.com/tomorrow",
 	},
 	Advertisement: struct {
-		Path          string
-		SwitchingTime uint
-		RefetchTime   uint
+		Path                     string
+		SwitchingTime            uint
+		RefetchTime              uint
+		ReloadIframeOnSizeChange bool
 	}{
-		Path:          "",
-		SwitchingTime: 10,
-		RefetchTime:   10,
+		Path:                     "",
+		SwitchingTime:            10,
+		RefetchTime:              10,
+		ReloadIframeOnSizeChange: false,
 	},
 	WebServer: struct {
 		ServerAddress string

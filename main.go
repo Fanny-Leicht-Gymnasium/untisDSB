@@ -68,13 +68,15 @@ func main() {
 			}
 		}
 		res := struct {
-			Urls          []string `json:"urls"`
-			SwitchingTime uint     `json:"switchingTime"`
-			RefetchTime   uint     `json:"refetchTime"`
+			Urls                     []string `json:"urls"`
+			SwitchingTime            uint     `json:"switchingTime"`
+			RefetchTime              uint     `json:"refetchTime"`
+			ReloadIframeOnSizeChange bool     `json:"reloadIframeOnSizeChange"`
 		}{
-			Urls:          fileUrls,
-			SwitchingTime: config.Config.Advertisement.SwitchingTime,
-			RefetchTime:   config.Config.Advertisement.RefetchTime,
+			Urls:                     fileUrls,
+			SwitchingTime:            config.Config.Advertisement.SwitchingTime,
+			RefetchTime:              config.Config.Advertisement.RefetchTime,
+			ReloadIframeOnSizeChange: config.Config.Advertisement.ReloadIframeOnSizeChange,
 		}
 
 		// Set response header and encode URLs to JSON

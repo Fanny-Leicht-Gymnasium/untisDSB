@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/static/main.css'>
+    <script src='/static/main.js' defer></script>
+    <style>
+        /* Ensure iframes are displayed next to each other */
+        .iframe-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timetable {
+            width: 50%;
+            /* Adjust width as needed */
+            height: 100vh;
+            /* Adjust height as needed */
+            border: none;
+        }
+
+        body {
+            margin: 0;
+            position: relative;
+        }
+
+        .bottom-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 50vw;
+            max-height: 50vh;
+            overflow: hidden;
+        }
+
+        .bottom-right img {
+            width: 50vw;
+            height: auto;
+            max-height: 50vh;
+            object-fit: contain;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="iframe-container">
+        <iframe id="iframe1" class="timetable"></iframe>
+        <iframe id="iframe2" class="timetable"></iframe>
+    </div>
+    <div id="bottom-right" class="bottom-right">
+        <img id="advertisement-image" src="" alt="Advertisement Image">
+    </div>
+</body>
+
+</html>

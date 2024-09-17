@@ -27,6 +27,7 @@ type ConfigStruct struct {
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
 		FixedHight               bool
+		Fullscreen               bool
 	}
 	ScrollText struct {
 		Path        string
@@ -52,12 +53,14 @@ var Config ConfigStruct = ConfigStruct{
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
 		FixedHight               bool
+		Fullscreen               bool
 	}{
 		Path:                     "",
 		SwitchingTime:            10,
 		RefetchTime:              60,
 		ReloadIframeOnSizeChange: false,
 		FixedHight:               false,
+		Fullscreen:               false,
 	},
 	ScrollText: struct {
 		Path        string

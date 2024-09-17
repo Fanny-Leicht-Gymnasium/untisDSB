@@ -74,14 +74,15 @@ func main() {
 			SwitchingTime            uint     `json:"switchingTime"`
 			RefetchTime              uint     `json:"refetchTime"`
 			ReloadIframeOnSizeChange bool     `json:"reloadIframeOnSizeChange"`
-			FixedHight bool     `json:"fixedHight"`
+			FixedHight               bool     `json:"fixedHight"`
+			Fullscreen               bool     `json:"fullscreen"`
 		}{
 			Urls:                     fileUrls,
 			SwitchingTime:            config.Config.Advertisement.SwitchingTime,
 			RefetchTime:              config.Config.Advertisement.RefetchTime,
 			ReloadIframeOnSizeChange: config.Config.Advertisement.ReloadIframeOnSizeChange,
-			FixedHight:                config.Config.Advertisement.FixedHight,
-
+			FixedHight:               config.Config.Advertisement.FixedHight,
+			Fullscreen:               config.Config.Advertisement.Fullscreen,
 		}
 
 		// Set response header and encode URLs to JSON

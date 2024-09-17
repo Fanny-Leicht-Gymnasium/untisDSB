@@ -1,8 +1,8 @@
 
 // Function to calculate available height
 function calculateAvailableHeight() {
-    if (fixedHight){
-        return window.innerHeight/2
+    if (fixedHight) {
+        return window.innerHeight / 2
     }
     const bottomRightElement = document.getElementById("bottom-right");
 
@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
 var refetchTime = 60
 var reloadIframeOnSizeChange = false
 var fixedHight = false
+var fullscreen = false
 document.addEventListener('DOMContentLoaded', function () {
     const imgElement = document.getElementById('advertisement-image');
     let fileUrls = [];
@@ -90,12 +91,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 refetchTime = data.refetchTime || 60;
                 reloadIframeOnSizeChange = data.reloadIframeOnSizeChange || false;
                 fixedHight = data.fixedHight || false;
+                fullscreen = data.fullscreen || false;
                 if (fixedHight) {
                     document.body.classList.add('fixedHight');
-                  } else {
+                } else {
                     document.body.classList.remove('fixedHight');
-                  }
-                  
+                }
+                if (fullscreen) {
+                    document.body.classList.add('adFullscreen');
+                } else {
+                    document.body.classList.remove('adFullscreen');
+                }
                 console.log(data.refetchTime)
                 currentIndex = 0; // Reset index to start from the first image
                 showNextImage(); // Show the first image immediately

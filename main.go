@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Fanny-Leicht-Gymnasium/untisDSB/config"
 )
@@ -91,6 +93,34 @@ func main() {
 
 	// Serve files from the advertisement directory
 	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
+	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
+		var texts []string
+		texts = config.Config.ScrollText.Texts
+		if texts == nil {
+			texts = []string{}
+		}
+		if config.Config.ScrollText.Path != "" {
+			file, err := os.ReadFile(config.Config.ScrollText.Path)
+			if err != nil {
+				log.Printf("Error reading scrolling text file: %v", err)
+			} else {
+				for _, line := range strings.Split(string(file), "\n") {
+					line = strings.TrimSpace(line) // Trim spaces or newlines
+					if line != "" {
+						texts = append(texts, line)
+					}
+				}
+			}
+		}
+		res := struct {
+			Texts       []string `json:"texts"`
+			RefetchTime uint     `json:"refetchTime"`
+		}{
+			Texts:       texts,
+			RefetchTime: config.Config.ScrollText.RefetchTime,
+		}
+		json.NewEncoder(w).Encode(res)
+	})
 
 	// Start the server
 	log.Printf("Server starting on %s...", config.Config.WebServer.ServerAddress)
@@ -98,4 +128,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
+
 }

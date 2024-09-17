@@ -26,7 +26,12 @@ type ConfigStruct struct {
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
-		FixedHight bool
+		FixedHight               bool
+	}
+	ScrollText struct {
+		Path        string
+		Texts       []string
+		RefetchTime uint
 	}
 	WebServer struct {
 		ServerAddress string
@@ -46,13 +51,22 @@ var Config ConfigStruct = ConfigStruct{
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
-		FixedHight bool
+		FixedHight               bool
 	}{
 		Path:                     "",
 		SwitchingTime:            10,
-		RefetchTime:              10,
+		RefetchTime:              60,
 		ReloadIframeOnSizeChange: false,
-		FixedHight: false,
+		FixedHight:               false,
+	},
+	ScrollText: struct {
+		Path        string
+		Texts       []string
+		RefetchTime uint
+	}{
+		Path:        "",
+		Texts:       []string{"Hello", "World"},
+		RefetchTime: 60,
 	},
 	WebServer: struct {
 		ServerAddress string
@@ -99,7 +113,7 @@ func LoadConfig() error {
 	}
 
 	viper.SetConfigFile(ConfigPath)
-
+	Config.ScrollText.Texts = nil
 	// Read the config file if it exists
 	if _, err := os.Stat(ConfigPath); err == nil {
 		if err := viper.ReadInConfig(); err != nil {

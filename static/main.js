@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error fetching URLs:', error);
         });
+
 });
 var refetchTime = 60
 var reloadIframeOnSizeChange = false

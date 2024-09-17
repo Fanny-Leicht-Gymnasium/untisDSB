@@ -52,7 +52,7 @@ jobs:
       with:
         name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
         path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' }}/${{ matrix.arch }}/untisDSB
-        
+
   release:
     needs: build  # This ensures the 'release' job runs after 'build' is completed
     runs-on: ubuntu-latest
@@ -64,7 +64,6 @@ jobs:
     - name: Download all build artifacts
       uses: actions/download-artifact@v3
       with:
-        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
         path: build/
 
     - name: Create GitHub Release
@@ -72,7 +71,7 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/linux/amd64/untisDSB
-          build/windows/amd64/untisDSB
+          build/untisDSB-ubuntu-latest-amd64 
+          build/untisDSB-windows-latest-amd64
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

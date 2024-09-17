@@ -26,6 +26,10 @@ type ConfigStruct struct {
 		SwitchingTime uint
 		RefetchTime   uint
 	}
+	ScrollText struct {
+		Path  string
+		Texts []string
+	}
 	WebServer struct {
 		ServerAddress string
 	}

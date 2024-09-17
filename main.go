@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Fanny-Leicht-Gymnasium/untisDSB/config"
 )
@@ -87,10 +89,19 @@ func main() {
 	// Serve files from the advertisement directory
 	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
 	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
+		texts := config.Config.ScrollText.Texts
+		if config.Config.ScrollText.Path != "" {
+			file, err := os.ReadFile(config.Config.ScrollText.Path)
+			if err != nil {
+				log.Printf("Error reading scrolling text file: %v", err)
+			} else {
+				texts = append(texts, strings.Split(string(file), "\n")...)
+			}
+		}
 		res := struct {
 			Texts []string `json:"texts"`
 		}{
-			Texts: []string{"text 1", "text 2 asbdbjskdlbsdfahjklhlkuggckjvhköhugildxfjhcjvhkguzrdzjydgxfcjvhkuöotzfdxfvnb bjk.ugifutdfxvn bvkgulizfutc bvhkgzfcf vbhbk.guzfcgh nb"},
+			Texts: texts,
 		}
 		json.NewEncoder(w).Encode(res)
 	})

@@ -2,37 +2,47 @@ const scrollTextElement = document.getElementById('scrolling-text');
 var currentIndex = 0
 var texts = []
 var textComponents = [];
+function newEleement(position) {
+
+    // Create a new text component
+    const newTextComponent = document.createElement('span');
+    newTextComponent.className = 'scrolling-text-content';
+    currentIndex = (currentIndex + 1) % texts.length; // Cycle through texts
+    newTextComponent.textContent = texts[currentIndex];
+    newTextComponent.style.position = 'absolute';
+    newTextComponent.style.left = position + "px";
+
+    // Add the new component to scrollTextElement
+    scrollTextElement.appendChild(newTextComponent);
+
+    // Update textComponents to include the new element
+    textComponents = Array.from(scrollTextElement.querySelectorAll(".scrolling-text-content"));
+}
 function updateText() {
     if (texts.length > 0) {
-        scrollTextElement.style.display = ""
-        textComponents.forEach(textComponent => {
-            const currentLeft = parseInt(getComputedStyle(textComponent).left, 10);
-            textComponent.style.left = (currentLeft - 20) + "px";
-            const textRect = textComponent.getBoundingClientRect();
-            if (textRect.right < 0) {
-                textComponent.remove()
-                textComponents.textComponents.splice(textComponents.indexOf(textComponent), 1)
+        if (textComponents.length > 0) {
+
+            scrollTextElement.style.display = ""
+            textComponents.forEach(textComponent => {
+                const currentLeft = parseInt(getComputedStyle(textComponent).left, 10);
+                textComponent.style.left = (currentLeft - 20) + "px";
+                const textRect = textComponent.getBoundingClientRect();
+                if (textRect.right < 0) {
+                    textComponent.remove()
+                    textComponents.textComponents.splice(textComponents.indexOf(textComponent), 1)
+                }
+
+            });
+            const lastTextComponent = textComponents[textComponents.length - 1];
+            const lastTextRect = lastTextComponent.getBoundingClientRect();
+            
+            if(lastTextRect.right < window.innerWidth){
+                newEleement((lastTextRect.left) + (lastTextRect.width))
             }
-
-        });
-        const lastTextComponent = textComponents[textComponents.length - 1];
-        const lastTextRect = lastTextComponent.getBoundingClientRect();
-        console.log(lastTextRect.right)
-        if (lastTextRect.right < window.innerWidth) {
-            // Create a new text component
-            const newTextComponent = document.createElement('span');
-            newTextComponent.className = 'scrolling-text-content';
-            currentIndex = (currentIndex + 1) % texts.length; // Cycle through texts
-            newTextComponent.textContent = texts[currentIndex];
-            newTextComponent.style.position = 'absolute';
-            newTextComponent.style.left = lastTextRect.left + lastTextRect.width + "px"; 
-
-            // Add the new component to scrollTextElement
-            scrollTextElement.appendChild(newTextComponent);
-
-            // Update textComponents to include the new element
-            textComponents = Array.from(scrollTextElement.querySelectorAll(".scrolling-text-content"));
+        }else{
+            newEleement(0)
         }
+
         // scrollTextElement.textContent = texts[currentIndex];
     } else {
         scrollTextElement.style.display = "none"

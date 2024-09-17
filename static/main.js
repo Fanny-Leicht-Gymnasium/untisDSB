@@ -1,6 +1,9 @@
 
 // Function to calculate available height
 function calculateAvailableHeight() {
+    if (fixedHight){
+        return window.innerHeight/2
+    }
     const bottomRightElement = document.getElementById("bottom-right");
 
     if (!bottomRightElement) {
@@ -19,7 +22,15 @@ function calculateAvailableHeight() {
     console.log(availableHeight)
     return availableHeight;
 }
-
+function reloadIframe(iframeId) {
+    if (!reloadIframeOnSizeChange) return;
+    var iframe = document.getElementById(iframeId);
+    if (iframe) {
+        iframe.src = iframe.src; // Triggers a reload of the iframe
+    } else {
+        console.error(`Iframe with id "${iframeId}" not found.`);
+    }
+}
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch URLs from /untis/urls
     fetch('/untis/urls')
@@ -40,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 var refetchTime = 60
+var reloadIframeOnSizeChange = false
+var fixedHight = false
 document.addEventListener('DOMContentLoaded', function () {
     const imgElement = document.getElementById('advertisement-image');
     let fileUrls = [];
@@ -48,10 +61,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let updateInterval;
     imgElement.onload = function () {
         document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
+        reloadIframe("iframe2")
     }
     imgElement.addEventListener('error', function () {
         document.getElementById("bottom-right").style.display = "none"
         document.getElementById("iframe2").style.height = "100vh"
+        reloadIframe("iframe2")
         fetchAndUpdateData()
     });
     function showNextImage() {
@@ -73,6 +88,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 fileUrls = data.urls || []; // Update file URLs
                 switchingTime = data.switchingTime || 10; // Update switching time
                 refetchTime = data.refetchTime || 60;
+                reloadIframeOnSizeChange = data.reloadIframeOnSizeChange || false;
+                fixedHight = data.fixedHight || false;
+                if (fixedHight) {
+                    document.body.classList.add('fixedHight');
+                  } else {
+                    document.body.classList.remove('fixedHight');
+                  }
+                  
                 console.log(data.refetchTime)
                 currentIndex = 0; // Reset index to start from the first image
                 showNextImage(); // Show the first image immediately

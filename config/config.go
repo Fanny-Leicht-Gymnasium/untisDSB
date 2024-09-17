@@ -22,9 +22,16 @@ type ConfigStruct struct {
 		TomorrowURL string
 	}
 	Advertisement struct {
-		Path          string
-		SwitchingTime uint
-		RefetchTime   uint
+		Path                     string
+		SwitchingTime            uint
+		RefetchTime              uint
+		ReloadIframeOnSizeChange bool
+		FixedHight               bool
+	}
+	ScrollText struct {
+		Path        string
+		Texts       []string
+		RefetchTime uint
 	}
 	ScrollText struct {
 		Path        string
@@ -45,9 +52,11 @@ var Config ConfigStruct = ConfigStruct{
 		TomorrowURL: "https://example.com/tomorrow",
 	},
 	Advertisement: struct {
-		Path          string
-		SwitchingTime uint
-		RefetchTime   uint
+		Path                     string
+		SwitchingTime            uint
+		RefetchTime              uint
+		ReloadIframeOnSizeChange bool
+		FixedHight               bool
 	}{
 		Path:          "",
 		SwitchingTime: 10,
@@ -58,9 +67,11 @@ var Config ConfigStruct = ConfigStruct{
 		Texts       []string
 		RefetchTime uint
 	}{
-		Path:        "",
-		Texts:       []string{"Hello", "World"},
-		RefetchTime: 60,
+		Path:                     "",
+		Texts:                    []string{"Hello", "World"},
+		RefetchTime:              60,
+		ReloadIframeOnSizeChange: false,
+		FixedHight:               false,
 	},
 	WebServer: struct {
 		ServerAddress string

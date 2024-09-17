@@ -55,3 +55,5 @@ jobs:
       with:
         name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
         path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB
+    - name: List build artifacts
+      run: ls -R build

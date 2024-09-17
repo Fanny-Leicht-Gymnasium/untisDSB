@@ -19,7 +19,6 @@ function calculateAvailableHeight() {
 
     // Calculate the available height
     const availableHeight = viewportHeight - bottomRightHeight;
-    console.log(availableHeight)
     return availableHeight;
 }
 function reloadIframe(iframeId) {
@@ -50,17 +49,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
 });
-var refetchTime = 60
+var adRefetchTime = 60
 var reloadIframeOnSizeChange = false
 var fixedHight = false
-var fullscreen = false
+var adFullscreen = false
+let adRefetchInterval
 document.addEventListener('DOMContentLoaded', function () {
     const imgElement = document.getElementById('advertisement-image');
     let fileUrls = [];
     let currentIndex = 0;
-    let switchingTime = 10; // Default switching time
-    let updateInterval;
+    let adSwitchingTime = 10; // Default switching time
+    let adUpdateInterval;
     imgElement.onload = function () {
+        if (adFullscreen) {
+            document.getElementById("iframe2").style.height = "100vh"
+        }
         document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
         reloadIframe("iframe2")
     }
@@ -87,32 +90,41 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 fileUrls = data.urls || []; // Update file URLs
-                switchingTime = data.switchingTime || 10; // Update switching time
-                refetchTime = data.refetchTime || 60;
+                var adSwitchingTimeNew = data.switchingTime || 10; // Update switching time
+                adRefetchTime = data.refetchTime || 60;
                 reloadIframeOnSizeChange = data.reloadIframeOnSizeChange || false;
                 fixedHight = data.fixedHight || false;
-                fullscreen = data.fullscreen || false;
+                adFullscreen = data.fullscreen || false;
                 if (fixedHight) {
                     document.body.classList.add('fixedHight');
                 } else {
                     document.body.classList.remove('fixedHight');
                 }
-                if (fullscreen) {
+                if (adFullscreen) {
                     document.body.classList.add('adFullscreen');
                 } else {
                     document.body.classList.remove('adFullscreen');
                 }
-                console.log(data.refetchTime)
-                currentIndex = 0; // Reset index to start from the first image
-                showNextImage(); // Show the first image immediately
+                if (adSwitchingTimeNew != adSwitchingTime) {
+                    
+                    adSwitchingTime = adSwitchingTimeNew
+                    // Clear the existing interval if any
+                    if (adUpdateInterval) {
+                        clearInterval(adUpdateInterval);
+                    }
 
-                // Clear the existing interval if any
-                if (updateInterval) {
-                    clearInterval(updateInterval);
+                    // Set a new interval with the updated switching time
+                    adUpdateInterval = setInterval(showNextImage, adSwitchingTime * 1000);
+
                 }
 
+                // Clear the existing interval if any
+                if (adRefetchInterval) {
+                    clearInterval(adRefetchInterval);
+                }
                 // Set a new interval with the updated switching time
-                updateInterval = setInterval(showNextImage, switchingTime * 1000);
+                adRefetchInterval = setInterval(fetchAndUpdateData, adRefetchTime * 1000);
+
             })
             .catch(error => {
                 console.error('Error fetching file URLs:', error);
@@ -121,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch data initially
     fetchAndUpdateData();
+    showNextImage(); // Show the first image immediately
+    adUpdateInterval = setInterval(showNextImage, adSwitchingTime * 1000);
 
-    // Fetch data at regular intervals
-    setInterval(fetchAndUpdateData, refetchTime * 1000); // Update every 60 seconds
 });

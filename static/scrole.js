@@ -2,8 +2,8 @@ const scrollTextElement = document.getElementById('scrolling-text');
 var currentIndex = 0
 var texts = []
 var textComponents = [];
-var refetchTime = 60;
-let refetchInterval;
+var scrollingTextRefetchTime = 60;
+let scrollingTextRefetchInterval;
 function newEleement(position) {
 
     // Create a new text component
@@ -69,16 +69,15 @@ function fetchAndUpdateData() {
                 texts = data.texts
             }
             if (data.refetchTime){
-                refetchTime = data.refetchTime
+                scrollingTextRefetchTime = data.refetchTime
             }
-            console.log("get" + texts)
             textComponents = document.querySelectorAll(".scrolling-text-content");
 
             // Clear the existing interval if any
-            if (refetchInterval) {
-                clearInterval(refetchInterval);
+            if (scrollingTextRefetchInterval) {
+                clearInterval(scrollingTextRefetchInterval);
             }
-            refetchInterval = setInterval(fetchAndUpdateData, refetchTime * 1000);
+            scrollingTextRefetchInterval = setInterval(fetchAndUpdateData, scrollingTextRefetchTime * 1000);
 
 
         })

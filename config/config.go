@@ -33,11 +33,6 @@ type ConfigStruct struct {
 		Texts       []string
 		RefetchTime uint
 	}
-	ScrollText struct {
-		Path        string
-		Texts       []string
-		RefetchTime uint
-	}
 	WebServer struct {
 		ServerAddress string
 	}
@@ -58,20 +53,20 @@ var Config ConfigStruct = ConfigStruct{
 		ReloadIframeOnSizeChange bool
 		FixedHight               bool
 	}{
-		Path:          "",
-		SwitchingTime: 10,
-		RefetchTime:   60,
+		Path:                     "",
+		SwitchingTime:            10,
+		RefetchTime:              60,
+		ReloadIframeOnSizeChange: false,
+		FixedHight:               false,
 	},
 	ScrollText: struct {
 		Path        string
 		Texts       []string
 		RefetchTime uint
 	}{
-		Path:                     "",
-		Texts:                    []string{"Hello", "World"},
-		RefetchTime:              60,
-		ReloadIframeOnSizeChange: false,
-		FixedHight:               false,
+		Path:        "",
+		Texts:       []string{"Hello", "World"},
+		RefetchTime: 60,
 	},
 	WebServer: struct {
 		ServerAddress string

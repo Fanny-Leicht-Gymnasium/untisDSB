@@ -4,7 +4,8 @@ on:
   push:
     tags:
       - 'v*.*.*'  # Trigger only on tags like v1.0.0, v1.1.0, etc.
-
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -72,7 +73,7 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/untisDSB-ubuntu-latest-amd64 
+          build/untisDSB-ubuntu-latest-amd64/main
+          build/untisDSB-windows-latest-amd64/main.exe
+          build/untisDSB-ubuntu-latest-amd64
           build/untisDSB-windows-latest-amd64
-          build/ubuntu-latest/amd64/untisDSB
-          build/windows-latest/amd64/untisDSB

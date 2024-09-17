@@ -38,19 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error fetching URLs:', error);
         });
 
-
-        // Fetch scrolling text content from /scrolling-text
-    fetch('/scrolling-text')
-    .then(response => response.json())
-    .then(data => {
-        const scrollTextElement = document.getElementById('scrolling-text-content');
-        if (data.text) {
-            scrollTextElement.textContent = data.text;
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching scrolling text:', error);
-    });
 });
 var refetchTime = 60
 document.addEventListener('DOMContentLoaded', function () {

@@ -87,9 +87,12 @@ func main() {
 	// Serve files from the advertisement directory
 	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
 	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
-		// Example scrolling text; replace with your own logic
-		data := map[string]string{"text": "Your scrolling text goes here. Your scrolling text goes here.Your scrolling text goes here.Your scrolling text goes here.Your scrolling text goes here."}
-		json.NewEncoder(w).Encode(data)
+		res := struct {
+			Texts []string `json:"texts"`
+		}{
+			Texts: []string{"text 1", "text 2 asbdbjskdlbsdfahjklhlkuggckjvhköhugildxfjhcjvhkguzrdzjydgxfcjvhkuöotzfdxfvnb bjk.ugifutdfxvn bvkgulizfutc bvhkgzfcf vbhbk.guzfcgh nb"},
+		}
+		json.NewEncoder(w).Encode(res)
 	})
 
 	// Start the server

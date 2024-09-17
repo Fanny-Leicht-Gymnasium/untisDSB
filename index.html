@@ -8,6 +8,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='/static/main.css'>
     <script src='/static/main.js' defer></script>
+    <script src='/static/scrole.js' defer></script>
     <style>
         /* Ensure iframes are displayed next to each other */
         .iframe-container {
@@ -48,8 +49,7 @@
             position: relative;
         }
 
-
-        .scrolling-text {
+        #scrolling-text {
             position: absolute;
             top: 0;
             left: 0;
@@ -62,27 +62,35 @@
             box-sizing: border-box;
         }
 
-        .scrolling-text span {
+        #scrolling-text span {
             display: inline-block;
-            padding-left: 100%;
-            animation: scroll-text 15s linear infinite;
+            padding-left: 10em;
+            padding-right: 10em;
             white-space: nowarp;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: left 1s linear;
         }
 
-        @keyframes scroll-text {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
+        .scrolling-text-content::after,
+        .scrolling-text-content::before {
+            content: ' *** ';
+            /* Separator content */
+            color: white;
+            /* Adjust color as needed */
+            padding-left: 1em;
+            /* Space around the separator */
+            padding-right: 1em;
         }
     </style>
 </head>
 
 <body>
-    <div class="scrolling-text">
-        <span id="scrolling-text-content">Your scrolling text goes here. This is a sample text that will scroll continuously.</span>
+    <div id="scrolling-text">
+        <span class="scrolling-text-content" style="left: 10em">Your scrolling text goes here. This is a sample text
+            that will scroll
+            continuously.</span>
     </div>
     <div class="iframe-container">
         <iframe id="iframe1" class="timetable"></iframe>

@@ -27,7 +27,7 @@ function updateText() {
             scrollTextElement.style.display = ""
             textComponents.forEach(textComponent => {
                 const currentLeft = parseInt(getComputedStyle(textComponent).left, 10);
-                textComponent.style.left = (currentLeft - 20) + "px";
+                textComponent.style.left = (currentLeft - (window.innerWidth/70)) + "px";
                 const textRect = textComponent.getBoundingClientRect();
                 if (textRect.right < 0) {
                     textComponent.remove()

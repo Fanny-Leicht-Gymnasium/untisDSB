@@ -75,5 +75,3 @@ jobs:
         files: |
           build/untisDSB-ubuntu-latest-amd64/main
           build/untisDSB-windows-latest-amd64/main.exe
-          build/untisDSB-ubuntu-latest-amd64
-          build/untisDSB-windows-latest-amd64

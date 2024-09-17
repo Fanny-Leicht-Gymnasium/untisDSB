@@ -26,6 +26,7 @@ type ConfigStruct struct {
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
+		FixedHight bool
 	}
 	WebServer struct {
 		ServerAddress string
@@ -45,11 +46,13 @@ var Config ConfigStruct = ConfigStruct{
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
+		FixedHight bool
 	}{
 		Path:                     "",
 		SwitchingTime:            10,
 		RefetchTime:              10,
 		ReloadIframeOnSizeChange: false,
+		FixedHight: false,
 	},
 	WebServer: struct {
 		ServerAddress string

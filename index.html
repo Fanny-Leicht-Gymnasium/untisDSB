@@ -10,6 +10,9 @@
     <script src='/static/main.js' defer></script>
     <script src='/static/scrole.js' defer></script>
     <style>
+        body{
+            --scrolling-font-size: 4vh;
+        }
         /* Ensure iframes are displayed next to each other */
         .iframe-container {
             display: flex;
@@ -60,12 +63,14 @@
             white-space: nowrap;
             overflow: hidden;
             box-sizing: border-box;
+            font-size: var(--scrolling-font-size);
+            height: 1.5em;
         }
 
         #scrolling-text span {
             display: inline-block;
-            padding-left: 10em;
-            padding-right: 10em;
+            padding-left: 5em;
+            padding-right: 5em;
             white-space: nowarp;
             position: absolute;
             left: 0;

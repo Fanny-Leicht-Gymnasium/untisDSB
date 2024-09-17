@@ -2,6 +2,8 @@ const scrollTextElement = document.getElementById('scrolling-text');
 var currentIndex = 0
 var texts = []
 var textComponents = [];
+var refetchTime = 60;
+let refetchInterval;
 function newEleement(position) {
 
     // Create a new text component
@@ -29,17 +31,17 @@ function updateText() {
                 const textRect = textComponent.getBoundingClientRect();
                 if (textRect.right < 0) {
                     textComponent.remove()
-                    textComponents.textComponents.splice(textComponents.indexOf(textComponent), 1)
+                    textComponents.splice(textComponents.indexOf(textComponent), 1)
                 }
 
             });
             const lastTextComponent = textComponents[textComponents.length - 1];
             const lastTextRect = lastTextComponent.getBoundingClientRect();
-            
-            if(lastTextRect.right < window.innerWidth){
+
+            if (lastTextRect.right < window.innerWidth) {
                 newEleement((lastTextRect.left) + (lastTextRect.width))
             }
-        }else{
+        } else {
             newEleement(0)
         }
 
@@ -51,6 +53,13 @@ function updateText() {
 
 }
 document.addEventListener('DOMContentLoaded', function () {
+    fetchAndUpdateData();
+    // Initial update
+    updateText();
+    setInterval(updateText, 900);
+
+});
+function fetchAndUpdateData() {
     // Fetch scrolling text content from /scrolling-text
     fetch('/scrolling-text')
         .then(response => response.json())
@@ -59,19 +68,21 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.texts) {
                 texts = data.texts
             }
+            if (data.refetchTime){
+                refetchTime = data.refetchTime
+            }
             console.log("get" + texts)
             textComponents = document.querySelectorAll(".scrolling-text-content");
-            // Initial update
-            updateText();
-            setInterval(updateText, 300);
+
+            // Clear the existing interval if any
+            if (refetchInterval) {
+                clearInterval(refetchInterval);
+            }
+            refetchInterval = setInterval(fetchAndUpdateData, refetchTime * 1000);
+
+
         })
         .catch(error => {
             console.error('Error fetching scrolling text:', error);
         });
-
-
-});
-
-//
-// scrollTextElement.textContent = data.texts[0];
-
+}

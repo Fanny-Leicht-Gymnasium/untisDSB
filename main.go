@@ -89,19 +89,30 @@ func main() {
 	// Serve files from the advertisement directory
 	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
 	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
-		texts := config.Config.ScrollText.Texts
+		var texts []string
+		texts = config.Config.ScrollText.Texts
+		if texts == nil {
+			texts = []string{}
+		}
 		if config.Config.ScrollText.Path != "" {
 			file, err := os.ReadFile(config.Config.ScrollText.Path)
 			if err != nil {
 				log.Printf("Error reading scrolling text file: %v", err)
 			} else {
-				texts = append(texts, strings.Split(string(file), "\n")...)
+				for _, line := range strings.Split(string(file), "\n") {
+					line = strings.TrimSpace(line) // Trim spaces or newlines
+					if line != "" {
+						texts = append(texts, line)
+					}
+				}
 			}
 		}
 		res := struct {
-			Texts []string `json:"texts"`
+			Texts       []string `json:"texts"`
+			RefetchTime uint     `json:"refetchTime"`
 		}{
-			Texts: texts,
+			Texts:       texts,
+			RefetchTime: config.Config.ScrollText.RefetchTime,
 		}
 		json.NewEncoder(w).Encode(res)
 	})

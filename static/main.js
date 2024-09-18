@@ -1,4 +1,14 @@
 
+function adjustIframeHeight(iframeElement) {
+    if (iframeElement && iframeElement.contentWindow) {
+        const body = iframeElement.contentWindow.document.body;
+        const html = iframeElement.contentWindow.document.documentElement;
+        iframeElement.style.height = ""; // Add 20px for extra space
+        const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        iframeElement.style.height = height + "px"; // Add 20px for extra space
+    }
+};
+
 // Function to calculate available height
 function calculateAvailableHeight() {
     if (fixedHight) {
@@ -55,24 +65,53 @@ var fixedHight = false
 var adFullscreen = false
 let adRefetchInterval
 document.addEventListener('DOMContentLoaded', function () {
-    const imgElement = document.getElementById('advertisement-image');
+    const imageElement = document.getElementById("advertisement-image");
+    const iframeElement = document.getElementById("advertisement-iframe");
     let fileUrls = [];
     let currentIndex = 0;
     let adSwitchingTime = 10; // Default switching time
     let adUpdateInterval;
-    imgElement.onload = function () {
+    imageElement.onload = function () {
+        if (!imageElement.checkVisibility()) {
+            return
+        }
         if (adFullscreen) {
             document.getElementById("iframe2").style.height = "100vh"
         }
         document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
         reloadIframe("iframe2")
     }
-    imgElement.addEventListener('error', function () {
+    imageElement.addEventListener('error', function () {
+        if (!imageElement.checkVisibility()) {
+            return
+        }
         document.getElementById("bottom-right").style.display = "none"
         document.getElementById("iframe2").style.height = "100vh"
         reloadIframe("iframe2")
         fetchAndUpdateData()
     });
+    iframeElement.onload = function () {
+        if (!iframeElement.checkVisibility()) {
+            return
+        }
+        if (adFullscreen) {
+            document.getElementById("iframe2").style.height = "100vh"
+        }
+        adjustIframeHeight(iframeElement)
+        document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
+        reloadIframe("iframe2")
+    }
+    iframeElement.addEventListener('error', function () {
+        if (!iframeElement.checkVisibility()) {
+            return
+        }
+
+        document.getElementById("bottom-right").style.display = "none"
+        document.getElementById("iframe2").style.height = "100vh"
+        reloadIframe("iframe2")
+        fetchAndUpdateData()
+    });
+
     function showNextImage() {
         if (fileUrls.length === 0) {
             document.getElementById("bottom-right").style.display = "none"
@@ -81,8 +120,25 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             document.getElementById("bottom-right").style.display = ""
         }
+
         currentIndex = (currentIndex + 1) % fileUrls.length;
-        imgElement.src = fileUrls[currentIndex];
+        const url = fileUrls[currentIndex];
+
+
+        // Check if the URL is an HTML file
+        if (url.endsWith('.html')) {
+            // Display HTML file
+            imageElement.style.display = 'none';
+            iframeElement.style.display = '';
+            iframeElement.src = url;
+            imageElement.src = fileUrls[(currentIndex + 1) % fileUrls.length];
+        } else {
+            // Display image
+            iframeElement.style.display = 'none';
+            imageElement.style.display = '';
+            imageElement.src = url;
+            iframeElement.src = fileUrls[(currentIndex + 1) % fileUrls.length];
+        }
     }
 
     function fetchAndUpdateData() {
@@ -106,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.body.classList.remove('adFullscreen');
                 }
                 if (adSwitchingTimeNew != adSwitchingTime) {
-                    
+
                     adSwitchingTime = adSwitchingTimeNew
                     // Clear the existing interval if any
                     if (adUpdateInterval) {

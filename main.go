@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -54,7 +53,7 @@ func main() {
 		dirPath := config.Config.Advertisement.Path
 
 		// Read all files in the directory
-		files, err := ioutil.ReadDir(dirPath)
+		files, err := os.ReadDir(dirPath)
 		if err != nil {
 			http.Error(w, "Error reading directory", http.StatusInternalServerError)
 			return

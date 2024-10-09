@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("bottom-right").style.display = "none"
         document.getElementById("iframe2").style.height = "100vh"
         reloadIframe("iframe2")
-        fetchAndUpdateData()
+        fetchAndUpdateAdData()
     });
     iframeElement.onload = function () {
         if (!iframeElement.checkVisibility()) {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("bottom-right").style.display = "none"
         document.getElementById("iframe2").style.height = "100vh"
         reloadIframe("iframe2")
-        fetchAndUpdateData()
+        fetchAndUpdateAdData()
     });
 
     function showNextImage() {
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function fetchAndUpdateData() {
+    function fetchAndUpdateAdData() {
         fetch('/ad')
             .then(response => response.json())
             .then(data => {
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(adRefetchInterval);
                 }
                 // Set a new interval with the updated switching time
-                adRefetchInterval = setInterval(fetchAndUpdateData, adRefetchTime * 1000);
+                adRefetchInterval = setInterval(fetchAndUpdateAdData, adRefetchTime * 1000);
 
             })
             .catch(error => {
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Fetch data initially
-    fetchAndUpdateData();
+    fetchAndUpdateAdData();
     showNextImage(); // Show the first image immediately
     adUpdateInterval = setInterval(showNextImage, adSwitchingTime * 1000);
 

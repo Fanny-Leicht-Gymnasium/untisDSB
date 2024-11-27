@@ -81,4 +81,4 @@ jobs:
         files: |
           build/untisDSB-ubuntu-latest-amd64/main
           build/untisDSB-windows-latest-amd64/main.exe
-          tampermonkey/*.js
+          tampermonkey/*.user.js

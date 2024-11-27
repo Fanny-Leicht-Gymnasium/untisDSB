@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageElement = document.getElementById("advertisement-image");
     const iframeElement = document.getElementById("advertisement-iframe");
     let fileUrls = [];
+    let fileUrlsOld = [];
     let currentIndex = 0;
     let adSwitchingTime = 10; // Default switching time
     let adUpdateInterval;
@@ -78,8 +79,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (adFullscreen) {
             document.getElementById("iframe2").style.height = "100vh"
         }
+        should_reload = (document.getElementById("iframe2").style.height != calculateAvailableHeight() + 5 + "px")
         document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
-        reloadIframe("iframe2")
+        
+        if (should_reload && !fixedHight){
+            reloadIframe("iframe2")
+        }
     }
     imageElement.addEventListener('error', function () {
         if (!imageElement.checkVisibility()) {
@@ -98,8 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("iframe2").style.height = "100vh"
         }
         adjustIframeHeight(iframeElement)
+        should_reload = (document.getElementById("iframe2").style.height != calculateAvailableHeight() + 5 + "px")
         document.getElementById("iframe2").style.height = calculateAvailableHeight() + 5 + "px"
-        reloadIframe("iframe2")
+        if (should_reload && !fixedHight){
+            reloadIframe("iframe2")
+        }
     }
     iframeElement.addEventListener('error', function () {
         if (!iframeElement.checkVisibility()) {
@@ -113,6 +121,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function showNextImage() {
+        if (fileUrlsOld.length != fileUrls.length) {
+            if (fileUrls.length === 0) {
+                reloadIframe("iframe2")
+            } else if(fileUrlsOld.length===0 && fileUrls.length > 0){
+                reloadIframe("iframe2")
+            }
+            fileUrlsOld=fileUrls
+        }
         if (fileUrls.length === 0) {
             document.getElementById("bottom-right").style.display = "none"
             document.getElementById("iframe2").style.height = "100vh"

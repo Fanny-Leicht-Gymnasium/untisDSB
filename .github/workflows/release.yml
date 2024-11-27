@@ -79,6 +79,6 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/linux/amd64/untisDSB
-          build/windows/amd64/untisDSB.exe
+          build/untisDSB-ubuntu-latest-amd64/main
+          build/untisDSB-windows-latest-amd64/main.exe
           tampermonkey/*.js

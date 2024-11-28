@@ -12,45 +12,56 @@
 (function () {
     'use strict';
 
+    let classesWithChanges = [];
+    let observer;
 
-    // Function to remove rows based on specific criteria
     function removeRowsBasedOnCriteria() {
-        // Select all rows in the table (assuming they are inside a table element)
+        // Select all rows in the table
         const rows = document.querySelectorAll('table tbody tr');
-        let classesWithChanges =[];
-                // Iterate over each row
+        classesWithChanges = [];
+        // Disconnect observer to avoid loops during DOM modifications
+        observer.disconnect();
+
         rows.forEach(row => {
-            // Get the cells in the current row (assuming the structure)
             const cells = row.querySelectorAll('td');
 
-            // Check if the row has enough cells and if the conditions match
             if (cells.length > 1) {
                 const vertretungstext = cells[8].innerText.trim();
                 const infoText = cells[7].innerText.trim();
                 const changeClass = cells[0].innerText.trim();
-                
-                // If Vertretungstext is "Bitte aufstuhlen!" and Info is "Text", remove the row
+
+                // Remove rows based on criteria
                 if (/^\W?bitte aufstuhlen!?\W?$/i.test(vertretungstext) &&
                     infoText.toLowerCase() === 'text') {
                     row.remove();
-                }else{
-                    if (!classesWithChanges.includes(changeClass)){
-                        classesWithChanges.push(changeClass)
-                    }
+                } else if (!classesWithChanges.includes(changeClass)) {
+                    classesWithChanges.push(changeClass);
                 }
             }
         });
-        console.log(classesWithChanges)
+        // Update classesWithChanges list in the UI
+        const classesWithChangesList = document.querySelector('#dijit__WidgetBase_1 > tr > td > span:nth-of-type(2)');
+        if (classesWithChangesList) {
+            classesWithChangesList.innerHTML = classesWithChanges.join(', ');
+        }
+
+        // Reconnect observer after modifications
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
     }
 
-    // Run the function to remove the rows when the page loads
+    // Run the function on page load
     window.addEventListener('load', removeRowsBasedOnCriteria);
 
-    const observer = new MutationObserver(() => {
+    // Initialize MutationObserver
+    observer = new MutationObserver(() => {
         removeRowsBasedOnCriteria();
     });
 
-    // Observe changes in the body of the document, including changes in child elements
+    // Observe changes in the body of the document
     observer.observe(document.body, {
         childList: true,
         subtree: true,

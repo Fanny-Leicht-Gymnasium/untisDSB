@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Highlight Rows by Stufe and Subgroup
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-25
+// @version      2024-11-28
 // @description  Highlight rows based on grade level (Stufe) and subgroup (a, b, c, d), with improved text readability, including strikethrough text.
 // @author       Mr-Comand
 // @match        https://*.webuntis.com/WebUntis/monitor*
@@ -9,29 +9,29 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     // Mapping of Stufe to hue values (Color coding grades)
     const hueMap = {
         '5': 0,    // Red
-        '6': 245,   // Orange
+        '6': 30,   // Orange
         '7': 50,   // Yellow
-        '8': 100,   // Lime green
+        '8': 100,  // Lime Green
         '9': 180,  // Cyan
-        '10': 300, // Green
-        '11': 240, // Blue
+        '10': 240, // Blue
+        '11': 280, // Violet
         '12': 300  // Purple
     };
 
     // Mapping of subgroup to saturation levels (Color intensity)
     const saturationMap = {
-        'a': 40, // Light saturation for 'a'
-        'b': 70, // High saturation for 'b'
-        'c': 50, // Medium saturation for 'c'
-        'd': 60, // High saturation for 'd'
-        '11': 30, // Default saturation for '11'
-        '12': 30  // Default saturation for '12'
+        'a': 40,  // Light saturation
+        'b': 70,  // High saturation
+        'c': 50,  // Medium saturation
+        'd': 60,  // High saturation
+        '11': 60, // Standard saturation
+        '12': 60  // Standard saturation
     };
 
     /**
@@ -48,7 +48,7 @@
         const hue = hueMap[stufeMatch?.[0]] || 0;
         const saturation = saturationMap[subgroupMatch?.[0]] || 50;
 
-        // Return the color in HSL format with fixed lightness
+        // Return the color in HSL format
         return `hsl(${hue}, ${saturation}%, ${100 - saturation}%)`;
     }
 

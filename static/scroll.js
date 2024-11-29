@@ -48,7 +48,9 @@ function updateText() {
         // scrollTextElement.textContent = texts[currentIndex];
     } else {
         scrollTextElement.style.display = "none"
-
+        scrollTextElement.childNodes.forEach(element => {
+            element.remove();
+        });
     }
 
 }

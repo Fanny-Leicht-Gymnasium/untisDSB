@@ -11,11 +11,11 @@
 
 (function () {
     'use strict';
-    const scrollIntervalTime = 5000
-    const jumpToTop = false
-    const inMotionPercentage = 0.01
-    const overlapPercentage = 0.02
-
+    const scrollIntervalTime=5000
+    const jumpToTop=false
+    const inMotionPercentage=0.01
+    const overlapPercentage=0.02
+    let tableDiv = undefined;
     // Function to adjust the height of an element to fit its parent
     function adjustElementHeight(selector) {
         const targetElement = document.querySelector(selector);
@@ -64,7 +64,9 @@
         adjustElementHeight('#uniqName_15_0 > div:has(table > tbody)');
     }
 
-    function fixScrolling() {
+
+    function fixScrolling(){
+        tableDiv = document.querySelectorAll('#uniqName_15_0 > div')[1];
         const tableDivs = document.querySelectorAll('#uniqName_15_0>div:has(table>tbody)');
         tableDivs.forEach(div => {
             const table = div.querySelector('table'); // Check if the div contains a table with a tbody
@@ -83,7 +85,7 @@
     window.addEventListener('load', function () {
         function smoothScrollPageDown() {
             // Select the specific div
-            const tableDiv = document.querySelectorAll('#uniqName_15_0 > div')[1];
+            tableDiv = document.querySelectorAll('#uniqName_15_0 > div')[1];
 
             if (!tableDiv) {
                 console.error("Specified div not found.");

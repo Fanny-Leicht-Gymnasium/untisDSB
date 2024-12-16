@@ -33,8 +33,8 @@
         // Calculate the available height by subtracting siblings' heights from the parent height
         const parentHeight = parentElement.clientHeight;
         const siblingHeight = Array.from(parentElement.children)
-        .filter((child) => child !== targetElement)
-        .reduce((total, sibling) => total + sibling.offsetHeight, 0);
+            .filter((child) => child !== targetElement)
+            .reduce((total, sibling) => total + sibling.offsetHeight, 0);
 
         const availableHeight = Math.max(0, parentHeight - siblingHeight);
         targetElement.style.height = `${availableHeight}px`;
@@ -63,6 +63,7 @@
         adjustElementHeight('#uniqName_15_0');
         adjustElementHeight('#uniqName_15_0 > div:has(table > tbody)');
     }
+
 
     function fixScrolling(){
         tableDiv = document.querySelectorAll('#uniqName_15_0 > div')[1];
@@ -96,16 +97,16 @@
                 let scrolling = false;
                 let scrollInterval = undefined;
                 setInterval(() => {
-                    console.log("scrole")
+                    console.log("scroll")
                     if (tableDiv.scrollTop >= tableDiv.scrollHeight - tableDiv.clientHeight) {
                         clearInterval(scrollInterval);
-                        if (jumpToTop){
+                        if (jumpToTop || inMotionPercentage == 0) {
                             tableDiv.scrollTop = 0; // Reset to the top
-                        }else{
+                        } else {
                             scrolling = true;
                             // Start smooth scrolling by small increments
                             const scrollHeight = tableDiv.scrollHeight; // Visible height of the div
-                            const step = scrollHeight/(inMotionPercentage*scrollIntervalTime); // Small scroll step in pixels
+                            const step = scrollHeight / (inMotionPercentage * scrollIntervalTime); // Small scroll step in pixels
                             const interval = 1; // Time in ms between each scroll step
                             const totalSteps = tableDiv.scrollHeight / step; // Number of steps to scroll one viewport height
 
@@ -125,29 +126,34 @@
                             }, interval);
                         }
                         scrolling = false
-                    }else if (!scrolling) {
+                    } else if (!scrolling) {
                         scrolling = true;
                         // Start smooth scrolling by small increments
-                        const viewportHeight = tableDiv.clientHeight * (1-overlapPercentage); // Visible height of the div
-                        const step = viewportHeight/(inMotionPercentage*scrollIntervalTime); // Small scroll step in pixels
+                        const viewportHeight = tableDiv.clientHeight * (1 - overlapPercentage); // Visible height of the div
+                        const step = viewportHeight / (inMotionPercentage * scrollIntervalTime); // Small scroll step in pixels
                         const interval = 1; // Time in ms between each scroll step
                         const totalSteps = viewportHeight / step; // Number of steps to scroll one viewport height
 
-                        let steps = 0;
-                        clearInterval(scrollInterval);
-                        scrollInterval = setInterval(() => {
-                            const currentScroll = tableDiv.scrollTop;
-                            const newScroll = currentScroll + step;
+                        if (inMotionPercentage == 0) {
+                            clearInterval(scrollInterval);
+                            tableDiv.scrollTop = tableDiv.scrollTop + viewportHeight;
+                        } else {
+                            let steps = 0;
+                            clearInterval(scrollInterval);
+                            scrollInterval = setInterval(() => {
+                                const currentScroll = tableDiv.scrollTop;
+                                const newScroll = currentScroll + step;
 
-                            // reset to the top if at the bottom
-                            if (steps >= totalSteps) {
-                                clearInterval(scrollInterval);
-                                scrolling = false;
-                            } else {
-                                tableDiv.scrollTop = newScroll;
-                                steps++;
-                            }
-                        }, interval);
+                                // reset to the top if at the bottom
+                                if (steps >= totalSteps) {
+                                    clearInterval(scrollInterval);
+                                    scrolling = false;
+                                } else {
+                                    tableDiv.scrollTop = newScroll;
+                                    steps++;
+                                }
+                            }, interval);
+                        }
                     }
                 }, scrollIntervalTime); // Trigger every 5 seconds
             } else {

@@ -95,7 +95,7 @@
                 let scrolling = false;
                 let scrollInterval = undefined;
                 setInterval(() => {
-                    console.log("scrole")
+                    console.log("scroll")
                     if (tableDiv.scrollTop >= tableDiv.scrollHeight - tableDiv.clientHeight) {
                         clearInterval(scrollInterval);
                         if (jumpToTop || inMotionPercentage == 0) {

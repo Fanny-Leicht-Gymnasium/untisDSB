@@ -1,3 +1,5 @@
+![WAKA-Time](https://waka.toomanyfiles.dev/api/badge/Mr-Comand/interval:any/project:untisDSB)
+
 # UntisDSB
 
 UntisDSB is a companion tool for WebUntis, designed to enhance the monitor screen functionality by adding color coding, removing unnecessary elements (like "Bitte Aufstuhlen"), improving scrolling behavior, and ensuring a responsive layout. This project provides both a backend system for timetable and advertisement management and browser-based enhancements via Tampermonkey scripts. All modules, as well as the backend, can be used independently of each other.

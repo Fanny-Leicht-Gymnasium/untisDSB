@@ -13,7 +13,9 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest ]  # Platforms to build on
         arch: [ amd64, arm ]  # Added 'arm' for Raspberry Pi 3B+
-
+        exclude:
+          - os: macos-latest
+            arch: arm  # ❌ Remove invalid macOS/ARM pair
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

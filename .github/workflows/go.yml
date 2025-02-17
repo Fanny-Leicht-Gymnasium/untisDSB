@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest] # Multiple OS platforms
-        arch: [ amd64 ] # Architecture
+        os: [ ubuntu-latest, windows-latest, macos-latest ] # Multiple OS platforms
+        arch: [ amd64, arm ] # Added ARM support for Raspberry Pi 3B+
 
     steps:
     - uses: actions/checkout@v4
@@ -26,27 +26,29 @@ jobs:
     - name: Build the project
       run: |
         # Determine GOOS based on matrix OS
-        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-          GOOS=linux
-        elif [ "${{ matrix.os }}" = "windows-latest" ]; then
-          GOOS=windows
-        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-          GOOS=darwin
-        else
-          echo "Unsupported OS"
-          exit 1
-        fi
+        case "${{ matrix.os }}" in
+          ubuntu-latest) GOOS=linux ;;
+          windows-latest) GOOS=windows ;;
+          macos-latest) GOOS=darwin ;;
+          *) echo "Unsupported OS" && exit 1 ;;
+        esac
 
         GOARCH=${{ matrix.arch }}
-
-        echo  "Building for $GOOS $GOARCH"
-
-        # Create the build directory if it does not exist
-        mkdir -p build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB
-          
-        # Build the project, ensuring to output a file in the correct directory
         
-        env GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }} GOARCH=${{ matrix.arch }} go build -o build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB main.go
+        # Set GOARM flag for ARM builds (for Raspberry Pi)
+        if [ "$GOARCH" = "arm" ]; then
+          GOARM=7
+        fi
+
+        echo "Building for $GOOS $GOARCH GOARM=${GOARM:-}"
+
+        # Define build output directory
+        BUILD_DIR="build/$GOOS/$GOARCH/untisDSB"
+        mkdir -p $BUILD_DIR
+
+        # Build the project
+        env GOOS=$GOOS GOARCH=$GOARCH GOARM=${GOARM:-} go build -o $BUILD_DIR/untisDSB${{ matrix.os == 'windows-latest' && '.exe' || '' }} main.go
+
     - name: Test
       run: go test -v ./...
 
@@ -54,6 +56,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
-        path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB
+        path: build/${{ matrix.os }}/{{ matrix.arch }}/untisDSB*
+
     - name: List build artifacts
       run: ls -R build

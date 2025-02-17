@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest] # Platforms to build on
-        arch: [ amd64 ] # Architecture
+        os: [ ubuntu-latest, windows-latest ]  # Platforms to build on
+        arch: [ amd64, arm ]  # Added 'arm' for Raspberry Pi 3B+
 
     steps:
     - name: Checkout code
@@ -36,14 +36,19 @@ jobs:
         fi
 
         GOARCH=${{ matrix.arch }}
+        
+        # Set GOARM flag for ARM architecture
+        if [ "$GOARCH" = "arm" ]; then
+          GOARM=7
+        fi
 
-        echo "Building for $GOOS $GOARCH"
+        echo "Building for $GOOS $GOARCH GOARM=${GOARM:-}"
 
         # Create the build directory
         mkdir -p build/$GOOS/$GOARCH/untisDSB
 
         # Build the project
-        env GOOS=$GOOS GOARCH=$GOARCH go build -o build/$GOOS/$GOARCH/untisDSB main.go
+        env GOOS=$GOOS GOARCH=$GOARCH GOARM=${GOARM:-} go build -o build/$GOOS/$GOARCH/untisDSB main.go
 
     - name: Run tests
       run: go test -v ./...
@@ -79,6 +84,7 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/untisDSB-ubuntu-latest-amd64/main
-          build/untisDSB-windows-latest-amd64/main.exe
+          build/linux-amd64/untisDSB
+          build/windows-amd64/untisDSB.exe
+          build/linux-arm/untisDSB
           tampermonkey/*.user.js

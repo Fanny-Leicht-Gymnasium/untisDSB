@@ -2,11 +2,13 @@ name: Go Build for Multiple Platforms
 
 on:
   push:
+    tags:
+      - 'v*.*.*'  # Trigger only on tags like v1.0.0, v1.1.0, etc.
+  push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch: # Allows manual triggering
-
 permissions:
   contents: write
 
@@ -15,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]  # Multiple OS platforms
+        os: [ linux, windows, darwin ]  # Multiple OS platforms
         arch: [ amd64, arm ]  # Added ARM support for Raspberry Pi 3B+
         exclude:
-          - os: macos-latest
+          - os: darwin
             arch: arm  # ❌ Remove invalid macOS/ARM pair
 
     steps:
@@ -32,13 +34,7 @@ jobs:
     - name: Build the project
       run: |
         # Determine GOOS based on matrix OS
-        case "${{ matrix.os }}" in
-          ubuntu-latest) GOOS=linux ;;
-          windows-latest) GOOS=windows ;;
-          macos-latest) GOOS=darwin ;;
-          *) echo "Unsupported OS" && exit 1 ;;
-        esac
-
+        GOOS=${{ matrix.os }}
         GOARCH=${{ matrix.arch }}
         
         # Set GOARM flag for ARM builds (for Raspberry Pi)
@@ -53,7 +49,7 @@ jobs:
         mkdir -p $BUILD_DIR
 
         # Set output filename based on OS
-        OUTPUT_NAME="untisDSB${{ matrix.os == 'windows-latest' && '.exe' || '' }}"
+        OUTPUT_NAME="untisDSB${{ matrix.os == 'windows' && '.exe' || '' }}"
 
         # Build the project
         env GOOS=$GOOS GOARCH=$GOARCH GOARM=${GOARM:-} go build -o $BUILD_DIR/$OUTPUT_NAME main.go
@@ -64,8 +60,8 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
-        path: build/${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'darwin' }}/${{ matrix.arch }}/untisDSB*
+        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+        path: build/${{ matrix.os }}/${{ matrix.arch }}/untisDSB*
         if-no-files-found: error  # Fail workflow if build output is missing
 
     - name: List build artifacts
@@ -74,6 +70,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')  # Ensure it only runs on version tags
 
     steps:
     - name: Checkout code
@@ -96,8 +93,5 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/linux/amd64/untisDSB
-          build/linux/arm/untisDSB
-          build/windows/amd64/untisDSB.exe
-          build/darwin/amd64/untisDSB
+          build/untisDSB-*
           tampermonkey/*.user.js

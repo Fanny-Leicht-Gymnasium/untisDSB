@@ -9,9 +9,15 @@
     <link rel='stylesheet' type='text/css' media='screen' href='/static/main.css'>
     <script src='/static/main.js' defer></script>
     <script src='/static/scroll.js' defer></script>
+    <script src='/static/hideCursor.js' defer></script>
     <style>
         body {
             --scrolling-font-size: 4vh;
+            cursor: default;
+        }
+        /* Auto-hide cursor */
+        .hide-cursor, .hide-cursor * { 
+            cursor: none !important;
         }
 
         /* Ensure iframes are displayed next to each other */
@@ -143,6 +149,7 @@
         <iframe id="advertisement-iframe" class="advertisement"
             style="display: none; border: none; height: fit-content;"></iframe>
     </div>
+    <div style="position: absolute;top:0;left:0;width: 100vw;height: 100vh;"></div>
 </body>
 
 </html>

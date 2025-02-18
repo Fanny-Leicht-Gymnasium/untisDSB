@@ -1,0 +1,96 @@
+name: Go Build for Multiple Platforms
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger only on tags like v1.0.0, v1.1.0, etc.
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual triggering
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ linux, windows, darwin ]  # Multiple OS platforms
+        arch: [ amd64, arm ]  # Added ARM support for Raspberry Pi 3B+
+        exclude:
+          - os: darwin
+            arch: arm  # ❌ Remove invalid macOS/ARM pair
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22.1'
+
+    - name: Build the project
+      run: |
+        # Determine GOOS based on matrix OS
+        GOOS=${{ matrix.os }}
+        GOARCH=${{ matrix.arch }}
+        
+        # Set GOARM flag for ARM builds (for Raspberry Pi)
+        if [ "$GOARCH" = "arm" ]; then
+          GOARM=7
+        fi
+
+        echo "Building for $GOOS $GOARCH GOARM=${GOARM:-}"
+
+        # Define build output directory
+        BUILD_DIR="build/$GOOS/$GOARCH"
+        mkdir -p $BUILD_DIR
+
+        # Set output filename based on OS
+        OUTPUT_NAME="untisDSB${{ matrix.os == 'windows' && '.exe' || '' }}"
+
+        # Build the project
+        env GOOS=$GOOS GOARCH=$GOARCH GOARM=${GOARM:-} go build -o $BUILD_DIR/$OUTPUT_NAME main.go
+
+    - name: Test
+      run: go test -v ./...
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+        path: build/${{ matrix.os }}/${{ matrix.arch }}/untisDSB*
+        if-no-files-found: error  # Fail workflow if build output is missing
+
+    - name: List build artifacts
+      run: ls -R build
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')  # Ensure it only runs on version tags
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: build/
+
+    - name: List downloaded files
+      run: |
+        echo "Downloaded build artifacts:"
+        ls -R build/
+        echo "Included Tampermonkey scripts:"
+        ls -R tampermonkey/ || echo "No Tampermonkey scripts found."
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
+        files: |
+          build/untisDSB-*
+          tampermonkey/*.user.js

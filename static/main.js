@@ -196,6 +196,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 // Set a new interval with the updated switching time
                 adRefetchInterval = setInterval(fetchAndUpdateAdData, adRefetchTime * 1000);
+                if (fileUrlsOld.length == 0){
+                    showNextImage()
+                }
 
             })
             .catch(error => {
@@ -205,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch data initially
     fetchAndUpdateAdData();
-    showNextImage(); // Show the first image immediately
+    // showNextImage(); // Show the first image immediately
     adUpdateInterval = setInterval(showNextImage, adSwitchingTime * 1000);
 
 });

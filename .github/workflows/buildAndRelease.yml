@@ -48,7 +48,7 @@ jobs:
         mkdir -p $BUILD_DIR
 
         # Set output filename based on OS
-        OUTPUT_NAME="untisDSB${{ matrix.os == 'windows' && '.exe' || '' }}"
+        OUTPUT_NAME="untisDSB-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}"
 
         # Build the project
         env GOOS=$GOOS GOARCH=$GOARCH GOARM=${GOARM:-} go build -o $BUILD_DIR/$OUTPUT_NAME main.go
@@ -59,7 +59,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+        name: untisDSB-${{ matrix.os }}-${{ matrix.arch }}
         path: build/${{ matrix.os }}/${{ matrix.arch }}/untisDSB*
         if-no-files-found: error  # Fail workflow if build output is missing
 
@@ -87,10 +87,48 @@ jobs:
         echo "Included Tampermonkey scripts:"
         ls -R tampermonkey/ || echo "No Tampermonkey scripts found."
 
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}  # Use the pushed tag as the release tag
         files: |
-          build/untisDSB-*
+          build/*/*
           tampermonkey/*.user.js
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Extract version from tag and Extract major, minor, and patch versions
+        id: version_parts
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          IFS='.' read -r major minor patch <<< "${VERSION#v}"
+          echo "MAJOR=${major}" >> $GITHUB_ENV
+          echo "MINOR=${minor}" >> $GITHUB_ENV
+          echo "PATCH=${patch}" >> $GITHUB_ENV
+  
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/fanny-leicht-gymnasium/untisdsb:${{ env.VERSION }} \
+                        -t ghcr.io/fanny-leicht-gymnasium/untisdsb:v${{ env.MAJOR }} \
+                        -t ghcr.io/fanny-leicht-gymnasium/untisdsb:v${{ env.MAJOR }}.${{ env.MINOR }} \
+                        -t ghcr.io/fanny-leicht-gymnasium/untisdsb:latest .
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker Image with version, minor, major, and latest tags
+        run: |
+          docker push ghcr.io/fanny-leicht-gymnasium/untisdsb:${{ env.VERSION }}
+          docker push ghcr.io/fanny-leicht-gymnasium/untisdsb:v${{ env.MAJOR }}
+          docker push ghcr.io/fanny-leicht-gymnasium/untisdsb:v${{ env.MAJOR }}.${{ env.MINOR }}
+          docker push ghcr.io/fanny-leicht-gymnasium/untisdsb:latest

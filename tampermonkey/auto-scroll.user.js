@@ -61,13 +61,25 @@
     function adjustHeights() {
         adjustParentContainers();
         adjustElementHeight('#uniqName_15_0');
-        adjustElementHeight('#uniqName_15_0 > div:has(table > tbody)');
-    }
 
+        const targetParent = document.querySelector('#uniqName_15_0');
+        if (targetParent) {
+            const targetDiv = Array.from(targetParent.querySelectorAll(':scope > div'))
+                .find(div => div.querySelector('table > tbody'));
+            if (targetDiv) {
+                adjustElementHeight('#uniqName_15_0 > div');
+            }
+        }
+    }
 
     function fixScrolling(){
         tableDiv = document.querySelectorAll('#uniqName_15_0 > div')[1];
-        const tableDivs = document.querySelectorAll('#uniqName_15_0>div:has(table>tbody)');
+        const parent = document.querySelector('#uniqName_15_0');
+        if (!parent) return;
+
+        const tableDivs = Array.from(parent.querySelectorAll(':scope > div'))
+            .filter(div => div.querySelector('table > tbody'));
+
         tableDivs.forEach(div => {
             const table = div.querySelector('table'); // Check if the div contains a table with a tbody
             if (table) {

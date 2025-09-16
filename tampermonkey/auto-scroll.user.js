@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Rewritten smooth Auto Scroll.
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-27
+// @version      2025-09-16
 // @description  Smoothly auto-scroll the specific div on WebUntis page and makes it responsive to size changes.
 // @author       Mr-Comand
 // @match        https://*.webuntis.com/WebUntis/monitor*

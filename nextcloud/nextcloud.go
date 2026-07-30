@@ -107,7 +107,8 @@ func GetNextcloudImages(shareURL string, nextcloudDepth int) ([]string, error) {
 		if !isSupportedFile(relative) {
 			continue
 		}
-		downloadURL := fmt.Sprintf("%s/apps/files_sharing/publicpreview/%s?file=/%s&x=1920&y=1080&a=true",
+
+		downloadURL := fmt.Sprintf("%s/public.php/dav/files/%s/%s",
 			base,
 			token,
 			url.PathEscape(relative),

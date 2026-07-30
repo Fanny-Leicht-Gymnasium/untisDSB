@@ -61,6 +61,8 @@ The server requires a YAML configuration file. Below is an example:
 Advertisement:
     FixedHight: false
     Fullscreen: false
+    IsNextcloud: false
+    NextcloudDepth: 1
     Path: ""
     RefetchTime: 60
     ReloadIframeOnSizeChange: false
@@ -78,26 +80,97 @@ WebServer:
     ServerAddress: :8080
 ```
 
-### Configuration Details
-1. **Advertisement**:
-   - `FixedHeight`: Enable or disable fixed-height advertisements (if false, `Auto Scroll Script` is recommended).
-   - `Fullscreen`: Display advertisements in fullscreen mode.
-   - `Path`: Path to advertisement images or HTML files.
-   - `RefetchTime`: Time interval (in seconds) to fetch new advertisement data.
-   - `ReloadIframeOnSizeChange`: Reload iframe if advertisement size changes.
-   - `SwitchingTime`: Time (in seconds) to switch between advertisements.
+## Configuration Details
 
-2. **ScrollText**:
-   - `Path`: Path to scrolling text data.
-   - `RefetchTime`: Time interval (in seconds) to fetch new scrolling text.
-   - `Texts`: List of static texts for scrolling.
+### Advertisement
 
-3. **Untis**:
-   - `TodayURL`: URL to fetch today's timetable.
-   - `TomorrowURL`: URL to fetch tomorrow's timetable.
+* `FixedHeight`:
 
-4. **WebServer**:
-   - `ServerAddress`: Address and port for the backend server.
+  * Enables or disables fixed-height advertisements.
+  * If disabled, the `Auto Scroll Script` is recommended.
+
+* `Fullscreen`:
+
+  * Displays advertisements in fullscreen mode.
+
+* `IsNextcloud`:
+
+  * Enables Nextcloud as the advertisement source.
+  * If `true`, `Path` must contain a public Nextcloud share URL.
+  * If `false`, `Path` must contain a local filesystem directory.
+
+* `NextcloudDepth`:
+
+  * Defines how deep Nextcloud folders are scanned.
+  * Example:
+
+    * `1`: Only files directly inside the shared folder.
+    * `2`: Include one additional subfolder level.
+    * Higher values scan deeper directory structures.
+
+* `Path`:
+
+  * Path to advertisement images.
+  * For local files:
+
+    ```yaml
+    Path: ./advertisements
+    ```
+  * For Nextcloud:
+
+    ```yaml
+    Path: https://{host}/s/{token}?dir=/{subfolder}
+    ```
+
+    The `dir` parameter is optional.
+    Example:
+    ```yaml
+    Path: https://nextcloud.example/s/hfqgjtqsDFAkFmU
+    ```
+
+* `RefetchTime`:
+
+  * Time interval (in seconds) to fetch new advertisement data.
+
+* `ReloadIframeOnSizeChange`:
+
+  * Reloads the iframe if the advertisement size changes.
+
+* `SwitchingTime`:
+
+  * Time interval (in seconds) between advertisements.
+
+### ScrollText
+
+* `Path`:
+
+  * Path to a file containing scrolling text entries.
+
+* `RefetchTime`:
+
+  * Time interval (in seconds) to reload scrolling text.
+
+* `Texts`:
+
+  * List of static scrolling texts.
+
+Example:
+
+```yaml
+Texts:
+    - Hello
+    - World
+```
+
+### Untis
+
+* `TodayURL`:
+
+  * URL used to fetch today's timetable.
+
+* `TomorrowURL`:
+
+  * URL used to fetch tomorrow's timetable.
 
 ---
 

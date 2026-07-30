@@ -67,6 +67,10 @@ let adRefetchInterval
 document.addEventListener('DOMContentLoaded', function () {
     const imageElement = document.getElementById("advertisement-image");
     const iframeElement = document.getElementById("advertisement-iframe");
+
+    const imageElementPreload = document.getElementById("advertisement-image-preload");
+    const iframeElementPreload = document.getElementById("advertisement-iframe-preload");
+
     let fileUrls = [];
     let fileUrlsOld = [];
     let currentIndex = 0;
@@ -147,13 +151,26 @@ document.addEventListener('DOMContentLoaded', function () {
             imageElement.style.display = 'none';
             iframeElement.style.display = '';
             iframeElement.src = url;
-            imageElement.src = fileUrls[(currentIndex + 1) % fileUrls.length];
         } else {
             // Display image
             iframeElement.style.display = 'none';
             imageElement.style.display = '';
             imageElement.src = url;
-            iframeElement.src = fileUrls[(currentIndex + 1) % fileUrls.length];
+        }
+
+        //preload
+        nextUrl = fileUrls[(currentIndex + 1) % fileUrls.length]
+        // Check if the URL is an HTML file
+        if (nextUrl.endsWith('.html')) {
+            // Display HTML file
+            imageElementPreload.style.display = 'none';
+            iframeElementPreload.style.display = '';
+            iframeElementPreload.src = nextUrl;
+        } else {
+            // Display image
+            iframeElementPreload.style.display = 'none';
+            imageElementPreload.style.display = '';
+            imageElementPreload.src = nextUrl;
         }
     }
 

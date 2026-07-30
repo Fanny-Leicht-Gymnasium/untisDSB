@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Fanny-Leicht-Gymnasium/untisDSB/config"
+	"github.com/Fanny-Leicht-Gymnasium/untisDSB/nextcloud"
 )
 
 //go:embed static/*
@@ -52,22 +53,35 @@ func main() {
 	http.HandleFunc("/ad", func(w http.ResponseWriter, r *http.Request) {
 		dirPath := config.Config.Advertisement.Path
 
-		// Read all files in the directory
-		files, err := os.ReadDir(dirPath)
-		if err != nil {
-			http.Error(w, "Error reading directory", http.StatusInternalServerError)
-			return
-		}
-
 		// Create a list of URLs for the files
 		var fileUrls []string
-		for _, file := range files {
-			if !file.IsDir() {
-				// Generate the URL path for each file
-				fileUrl := "/ad/" + filepath.Base(file.Name())
-				fileUrls = append(fileUrls, fileUrl)
+
+		if config.Config.Advertisement.IsNextcloud {
+
+			urls, err := nextcloud.GetNextcloudImages(dirPath, config.Config.Advertisement.NextcloudDepth)
+			if err != nil {
+				urls = []string{} // Set to empty slice on error
+				log.Printf("Error fetching Nextcloud images: %v", err)
+			}
+
+			fileUrls = urls
+		} else {
+			// Read all files in the directory
+			files, err := os.ReadDir(dirPath)
+			if err != nil {
+				http.Error(w, "Error reading directory", http.StatusInternalServerError)
+				return
+			}
+
+			for _, file := range files {
+				if !file.IsDir() {
+					// Generate the URL path for each file
+					fileUrl := "/ad/" + filepath.Base(file.Name())
+					fileUrls = append(fileUrls, fileUrl)
+				}
 			}
 		}
+
 		res := struct {
 			Urls                     []string `json:"urls"`
 			SwitchingTime            uint     `json:"switchingTime"`
@@ -92,7 +106,36 @@ func main() {
 	})
 
 	// Serve files from the advertisement directory
-	http.Handle("/ad/", http.StripPrefix("/ad/", http.FileServer(http.Dir(config.Config.Advertisement.Path))))
+	http.HandleFunc("/ad/", func(w http.ResponseWriter, r *http.Request) {
+		if config.Config.Advertisement.IsNextcloud {
+			http.Error(w, "Advertisement files are served from Nextcloud", http.StatusNotFound)
+			return
+		}
+
+		adPath := config.Config.Advertisement.Path
+
+		info, err := os.Stat(adPath)
+		if err != nil {
+			http.Error(w, "Advertisement directory unavailable", http.StatusInternalServerError)
+			return
+		}
+
+		if !info.IsDir() {
+			http.Error(w, "Advertisement path is not a directory", http.StatusInternalServerError)
+			return
+		}
+
+		absPath, err := filepath.Abs(adPath)
+		if err != nil {
+			http.Error(w, "Invalid advertisement path", http.StatusInternalServerError)
+			return
+		}
+
+		handler := http.FileServer(http.Dir(absPath))
+
+		http.StripPrefix("/ad/", handler).ServeHTTP(w, r)
+	})
+	
 	http.HandleFunc("/scrolling-text", func(w http.ResponseWriter, r *http.Request) {
 		var texts []string
 		texts = config.Config.ScrollText.Texts

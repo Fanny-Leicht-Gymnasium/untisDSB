@@ -23,6 +23,8 @@ type ConfigStruct struct {
 	}
 	Advertisement struct {
 		Path                     string
+		IsNextcloud              bool
+		NextcloudDepth           int
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
@@ -49,6 +51,8 @@ var Config ConfigStruct = ConfigStruct{
 	},
 	Advertisement: struct {
 		Path                     string
+		IsNextcloud              bool
+		NextcloudDepth           int
 		SwitchingTime            uint
 		RefetchTime              uint
 		ReloadIframeOnSizeChange bool
@@ -56,6 +60,8 @@ var Config ConfigStruct = ConfigStruct{
 		Fullscreen               bool
 	}{
 		Path:                     "",
+		IsNextcloud:              false,
+		NextcloudDepth:           1,
 		SwitchingTime:            10,
 		RefetchTime:              60,
 		ReloadIframeOnSizeChange: false,
